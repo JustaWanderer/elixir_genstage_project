@@ -6,7 +6,7 @@ defmodule ElixirGenstage.PageidProducer do
   end
 
   def init({range, limit}) do
-    {page_titles, _} =
+    page_titles =
       range
       |> get_timestamps()
       |> Enum.map(fn {y, m} ->
@@ -21,9 +21,13 @@ defmodule ElixirGenstage.PageidProducer do
       |> Enum.to_list()
       |> List.flatten()
       |> Enum.map(fn %{"article" => res} -> res end)
-      |> Enum.split(limit)
 
-    {:producer, page_titles}
+    if limit != nil do
+      {page_titles, _} = page_titles |> Enum.split(limit)
+      {:producer, page_titles}
+    else
+      {:producer, page_titles}
+    end
   end
 
   defp get_timestamps({{year, from_month}, {year, to_month}}) do
@@ -47,12 +51,8 @@ defmodule ElixirGenstage.PageidProducer do
   end
 
   def handle_demand(demand, state) do
-    {:registered_name, name} = Process.info(self(), :registered_name)
-    IO.puts("#{name}: Demand for #{demand} articles.")
-
     {events, rest} = Enum.split(state, demand)
 
-    IO.puts("#{name}: Produced #{length(events)} articles.")
     {:noreply, events, rest}
   end
 end

@@ -1,4 +1,4 @@
-defmodule ElixirGenstage.WordCounterConsumer do
+defmodule ElixirGenstage.UniquePageConsumer do
   use ConsumerSupervisor, restart: :transient
 
   def start_link(_) do
@@ -17,7 +17,7 @@ defmodule ElixirGenstage.WordCounterConsumer do
     opts = [
       strategy: :one_for_one,
       subscribe_to: [
-        {ElixirGenstage.UniquePageProducerConsumer, max_demand: 20}
+        {ElixirGenstage.PageidProducer, max_demand: 500}
       ]
     ]
 
